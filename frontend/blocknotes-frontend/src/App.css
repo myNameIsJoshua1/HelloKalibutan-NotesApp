@@ -1,15 +1,14 @@
 body {
   margin: 0;
-  font-family: "Orbitron", sans-serif;
-  overflow-x: hidden;
   background: #0a0c1d;
+  overflow-x: hidden;
 }
+
 
 .app-root {
   position: relative;
   z-index: 1;
-  padding: 20px;
-  max-width: 1200px;
+  padding: 20px;  
   margin: 0 auto;
 }
 
