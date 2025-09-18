@@ -9,8 +9,8 @@ function NoteForm({ title, onTitleChange, value, onChange, onSubmit, isEditing, 
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        mb: 3,
+        gap: 3,
+        mb: 5,
       }}
     >
       <TextField
@@ -30,7 +30,7 @@ function NoteForm({ title, onTitleChange, value, onChange, onSubmit, isEditing, 
         onChange={onChange}
         placeholder="Enter your note here..."
       />
-      <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-start" }}>
         {isEditing && (
           <Button variant="outlined" color="secondary" onClick={onCancel}>
             Cancel
