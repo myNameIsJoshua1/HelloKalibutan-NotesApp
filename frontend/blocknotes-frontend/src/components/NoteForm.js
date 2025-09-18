@@ -1,34 +1,44 @@
-import React from 'react';
-import { Box, TextField, Button } from '@mui/material';
+import React from "react";
+import { TextField, Button, Box } from "@mui/material";
 
 function NoteForm({ title, onTitleChange, value, onChange, onSubmit, isEditing, onCancel }) {
   return (
-    <Box display="flex" flexDirection="column" gap={2} mb={3}>
+    <Box
+      component="form"
+      onSubmit={onSubmit}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        mb: 3,
+      }}
+    >
       <TextField
-        label={isEditing ? 'Edit title...' : 'Note title...'}
-        variant="outlined"
+        label="Title"
         fullWidth
         value={title}
         onChange={onTitleChange}
-        sx={{ mb: 1 }}
+        placeholder="Enter note title"
       />
       <TextField
-        label={isEditing ? 'Edit note...' : 'Write a note...'}
-        variant="outlined"
+        label="Write a note..."
         fullWidth
+        multiline
+        minRows={4}
+        maxRows={10}
         value={value}
         onChange={onChange}
-        sx={{ mb: 1 }}
+        placeholder="Enter your note here..."
       />
-      <Box display="flex" gap={2}>
-        <Button variant="contained" color="primary" onClick={onSubmit}>
-          {isEditing ? 'Update' : 'Add'}
-        </Button>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
         {isEditing && (
           <Button variant="outlined" color="secondary" onClick={onCancel}>
             Cancel
           </Button>
         )}
+        <Button type="submit" variant="contained" color="primary">
+          {isEditing ? "Update" : "Add"}
+        </Button>
       </Box>
     </Box>
   );
