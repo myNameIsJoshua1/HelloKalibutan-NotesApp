@@ -3,6 +3,11 @@ import axios from "axios";
 import NotesPage from "./pages/NotesPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./theme/theme";
+import ParticleBackground from "./components/NoteCard";
+import "./App.css";
+
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -116,21 +121,27 @@ function App() {
   }
 
   return (
-    <NotesPage
-      notes={notes}
-      onAdd={addNote}
-      onDelete={deleteNote}
-      onEdit={editNote}
-      onLogout={handleLogout}
-      editingNote={editingNote}
-      newNote={newNote}
-      setNewNote={setNewNote}
-      newTitle={newTitle}
-      setNewTitle={setNewTitle}
-      isEditing={isEditing}
-      setIsEditing={setIsEditing}
-      setEditingNote={setEditingNote}
-    />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <ParticleBackground />
+      <div className="app-root">
+        <NotesPage
+          notes={notes}
+          onAdd={addNote}
+          onDelete={deleteNote}
+          onEdit={editNote}
+          onLogout={handleLogout}
+          editingNote={editingNote}
+          newNote={newNote}
+          setNewNote={setNewNote}
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          setEditingNote={setEditingNote}
+        />
+      </div>
+    </ThemeProvider>
   );
 }
 
