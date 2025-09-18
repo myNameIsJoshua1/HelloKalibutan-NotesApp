@@ -1,24 +1,35 @@
 import React from 'react';
 import { Box, TextField, Button } from '@mui/material';
 
-function NoteForm({ value, onChange, onSubmit, isEditing, onCancel }) {
+function NoteForm({ title, onTitleChange, value, onChange, onSubmit, isEditing, onCancel }) {
   return (
-    <Box display="flex" gap={2} mb={3}>
+    <Box display="flex" flexDirection="column" gap={2} mb={3}>
+      <TextField
+        label={isEditing ? 'Edit title...' : 'Note title...'}
+        variant="outlined"
+        fullWidth
+        value={title}
+        onChange={onTitleChange}
+        sx={{ mb: 1 }}
+      />
       <TextField
         label={isEditing ? 'Edit note...' : 'Write a note...'}
         variant="outlined"
         fullWidth
         value={value}
         onChange={onChange}
+        sx={{ mb: 1 }}
       />
-      <Button variant="contained" color="primary" onClick={onSubmit}>
-        {isEditing ? 'Update' : 'Add'}
-      </Button>
-      {isEditing && (
-        <Button variant="outlined" color="secondary" onClick={onCancel}>
-          Cancel
+      <Box display="flex" gap={2}>
+        <Button variant="contained" color="primary" onClick={onSubmit}>
+          {isEditing ? 'Update' : 'Add'}
         </Button>
-      )}
+        {isEditing && (
+          <Button variant="outlined" color="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+      </Box>
     </Box>
   );
 }

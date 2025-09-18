@@ -11,6 +11,7 @@ function App() {
   });
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
+  const [newTitle, setNewTitle] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [page, setPage] = useState("login"); // 'login' | 'register' | 'notes'
@@ -33,25 +34,29 @@ function App() {
 
   const addNote = async (e) => {
     if (e) e.preventDefault();
-    if (!newNote.trim()) return;
+    if (!newNote.trim() || !newTitle.trim()) return;
     try {
       if (isEditing && editingNote) {
         // Update note
         const res = await axios.put(`http://localhost:8080/api/notes/${editingNote.id}`, {
           ...editingNote,
+          title: newTitle,
           content: newNote,
         });
         setNotes(notes.map((n) => (n.id === editingNote.id ? res.data : n)));
         setIsEditing(false);
         setEditingNote(null);
         setNewNote("");
+        setNewTitle("");
       } else {
         // Add note
         const res = await axios.post(`http://localhost:8080/api/notes/user/${user.id}`, {
+          title: newTitle,
           content: newNote,
         });
         setNotes([...notes, res.data]);
         setNewNote("");
+        setNewTitle("");
       }
     } catch (err) {
       console.error("Error saving note:", err);
@@ -71,6 +76,7 @@ function App() {
     setIsEditing(true);
     setEditingNote(note);
     setNewNote(note.content);
+    setNewTitle(note.title);
   };
 
   const handleLogin = async ({ username, password }) => {
@@ -119,6 +125,8 @@ function App() {
       editingNote={editingNote}
       newNote={newNote}
       setNewNote={setNewNote}
+      newTitle={newTitle}
+      setNewTitle={setNewTitle}
       isEditing={isEditing}
       setIsEditing={setIsEditing}
       setEditingNote={setEditingNote}

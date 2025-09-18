@@ -17,7 +17,7 @@ function NoteList({ notes, onDelete, onEdit }) {
             </IconButton>
           </>
         }>
-          <ListItemText primary={note.content} />
+          <ListItemText primary={note.title} secondary={note.content} />
         </ListItem>
       ))}
     </List>
