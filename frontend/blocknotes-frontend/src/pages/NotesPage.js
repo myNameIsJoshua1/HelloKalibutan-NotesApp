@@ -74,7 +74,6 @@ function NotesPage({
       disableGutters
       sx={{
         mt: 4,
-        // wider horizontal padding so grid sits more centered across large screens
         px: { xs: 2, sm: 4, md: 8, lg: 12 },
       }}
     >
@@ -135,7 +134,7 @@ function NotesPage({
       <Grid
         container
         spacing={4}
-        justifyContent="center"   // keeps cards centered in the container width
+        justifyContent="flex-start" // <--- notes aligned to left
       >
         {notes.map((note) => (
           <Grid key={note.id} item>
@@ -143,8 +142,8 @@ function NotesPage({
               elevation={3}
               onClick={() => openView(note)}
               sx={{
-                width: 260,             // <-- fixed width
-                height: 220,            // <-- fixed height
+                width: 260,
+                height: 220,
                 p: 2.5,
                 display: "flex",
                 flexDirection: "column",
@@ -179,9 +178,7 @@ function NotesPage({
                 {note.content}
               </Typography>
 
-              <Box
-                sx={{ mt: 1, display: "flex", justifyContent: "flex-end", gap: 1 }}
-              >
+              <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end", gap: 1 }}>
                 <Button
                   size="small"
                   variant="text"

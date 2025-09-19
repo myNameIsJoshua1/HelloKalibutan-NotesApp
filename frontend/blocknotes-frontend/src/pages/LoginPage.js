@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Typography, Paper } from '@mui/material';
+import { TextField, Button, Typography, Paper } from '@mui/material';
 
 function LoginPage({ onLogin, onSwitchToRegister }) {
   const [username, setUsername] = useState('');
@@ -11,8 +11,10 @@ function LoginPage({ onLogin, onSwitchToRegister }) {
   };
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 400, mx: 'auto', mt: 8 }}>
-      <Typography variant="h5" align="center" gutterBottom>Login</Typography>
+    <Paper sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
+      <Typography variant="h5" align="center" gutterBottom>
+        Login
+      </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           label="Username"
@@ -29,10 +31,16 @@ function LoginPage({ onLogin, onSwitchToRegister }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+        <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
           Login
         </Button>
-        <Button onClick={onSwitchToRegister} color="secondary" fullWidth sx={{ mt: 1 }}>
+        <Button
+          onClick={onSwitchToRegister}
+          variant="contained"
+          color="secondary"
+          fullWidth
+          sx={{ mt: 1 }}
+        >
           Don't have an account? Register
         </Button>
       </form>
