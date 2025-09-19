@@ -8,18 +8,21 @@ import theme from "./theme/theme";
 import ParticleBackground from "./components/NoteCard";
 import "./App.css";
 
-
 function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
+
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [page, setPage] = useState("login"); // 'login' | 'register' | 'notes'
+
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("date");
 
   useEffect(() => {
     if (user) {
@@ -37,35 +40,34 @@ function App() {
     }
   };
 
-  const addNote = async (e) => {
-    if (e) e.preventDefault();
+  const addOrUpdateNote = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!newNote.trim() || !newTitle.trim()) return;
+
     try {
       if (isEditing && editingNote) {
-        // Update note
         const res = await axios.put(`http://localhost:8080/api/notes/${editingNote.id}`, {
           ...editingNote,
           title: newTitle,
           content: newNote,
         });
         setNotes(notes.map((n) => (n.id === editingNote.id ? res.data : n)));
-        setIsEditing(false);
-        setEditingNote(null);
-        setNewNote("");
-        setNewTitle("");
       } else {
-        // Add note
         const res = await axios.post(`http://localhost:8080/api/notes/user/${user.id}`, {
           title: newTitle,
           content: newNote,
         });
         setNotes([...notes, res.data]);
-        setNewNote("");
-        setNewTitle("");
       }
     } catch (err) {
       console.error("Error saving note:", err);
     }
+
+    // reset
+    setIsEditing(false);
+    setEditingNote(null);
+    setNewNote("");
+    setNewTitle("");
   };
 
   const deleteNote = async (id) => {
@@ -90,7 +92,7 @@ function App() {
       setUser(res.data);
       localStorage.setItem("user", JSON.stringify(res.data));
       setPage("notes");
-    } catch (err) {
+    } catch {
       alert("Invalid username or password");
     }
   };
@@ -101,7 +103,7 @@ function App() {
       setUser(res.data);
       localStorage.setItem("user", JSON.stringify(res.data));
       setPage("notes");
-    } catch (err) {
+    } catch {
       alert("Registration failed");
     }
   };
@@ -120,18 +122,27 @@ function App() {
     return <LoginPage onLogin={handleLogin} onSwitchToRegister={() => setPage("register")} />;
   }
 
+  const filteredNotes = notes
+    .filter((n) =>
+      n.title.toLowerCase().includes(search.toLowerCase()) ||
+      n.content.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sort === "title") return a.title.localeCompare(b.title);
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ParticleBackground />
       <div className="app-root">
         <NotesPage
-          notes={notes}
-          onAdd={addNote}
+          notes={filteredNotes}
+          onAdd={addOrUpdateNote}
           onDelete={deleteNote}
           onEdit={editNote}
           onLogout={handleLogout}
-          editingNote={editingNote}
           newNote={newNote}
           setNewNote={setNewNote}
           newTitle={newTitle}
@@ -139,6 +150,10 @@ function App() {
           isEditing={isEditing}
           setIsEditing={setIsEditing}
           setEditingNote={setEditingNote}
+          search={search}
+          setSearch={setSearch}
+          sort={sort}
+          setSort={setSort}
         />
       </div>
     </ThemeProvider>
