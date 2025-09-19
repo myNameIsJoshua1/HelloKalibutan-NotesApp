@@ -6,7 +6,6 @@ import RegisterPage from "./pages/RegisterPage";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme/theme";
 import ParticleBackground from "./components/NoteCard";
-import "./App.css";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -63,7 +62,6 @@ function App() {
       console.error("Error saving note:", err);
     }
 
-    // reset
     setIsEditing(false);
     setEditingNote(null);
     setNewNote("");
@@ -97,14 +95,19 @@ function App() {
     }
   };
 
+  // Updated registration function
   const handleRegister = async ({ username, password }) => {
+    if (!username.trim() || !password.trim()) {
+      alert("Please fill in both username and password.");
+      return;
+    }
+
     try {
-      const res = await axios.post("http://localhost:8080/api/users", { username, password });
-      setUser(res.data);
-      localStorage.setItem("user", JSON.stringify(res.data));
-      setPage("notes");
+      await axios.post("http://localhost:8080/api/users", { username, password });
+      alert("Registration successful! Please log in.");
+      setPage("login"); // redirect to login page
     } catch {
-      alert("Registration failed");
+      alert("Registration failed. Please try again.");
     }
   };
 
@@ -115,17 +118,11 @@ function App() {
     setPage("login");
   };
 
-  if (!user) {
-    if (page === "register") {
-      return <RegisterPage onRegister={handleRegister} onSwitchToLogin={() => setPage("login")} />;
-    }
-    return <LoginPage onLogin={handleLogin} onSwitchToRegister={() => setPage("register")} />;
-  }
-
   const filteredNotes = notes
-    .filter((n) =>
-      n.title.toLowerCase().includes(search.toLowerCase()) ||
-      n.content.toLowerCase().includes(search.toLowerCase())
+    .filter(
+      (n) =>
+        n.title.toLowerCase().includes(search.toLowerCase()) ||
+        n.content.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       if (sort === "title") return a.title.localeCompare(b.title);
@@ -136,26 +133,35 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ParticleBackground />
-      <div className="app-root">
-        <NotesPage
-          notes={filteredNotes}
-          onAdd={addOrUpdateNote}
-          onDelete={deleteNote}
-          onEdit={editNote}
-          onLogout={handleLogout}
-          newNote={newNote}
-          setNewNote={setNewNote}
-          newTitle={newTitle}
-          setNewTitle={setNewTitle}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-          setEditingNote={setEditingNote}
-          search={search}
-          setSearch={setSearch}
-          sort={sort}
-          setSort={setSort}
-        />
-      </div>
+
+      {!user ? (
+        page === "register" ? (
+          <RegisterPage onRegister={handleRegister} onSwitchToLogin={() => setPage("login")} />
+        ) : (
+          <LoginPage onLogin={handleLogin} onSwitchToRegister={() => setPage("register")} />
+        )
+      ) : (
+        <div className="app-root">
+          <NotesPage
+            notes={filteredNotes}
+            onAdd={addOrUpdateNote}
+            onDelete={deleteNote}
+            onEdit={editNote}
+            onLogout={handleLogout}
+            newNote={newNote}
+            setNewNote={setNewNote}
+            newTitle={newTitle}
+            setNewTitle={setNewTitle}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            setEditingNote={setEditingNote}
+            search={search}
+            setSearch={setSearch}
+            sort={sort}
+            setSort={setSort}
+          />
+        </div>
+      )}
     </ThemeProvider>
   );
 }
