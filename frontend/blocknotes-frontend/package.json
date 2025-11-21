@@ -3,28 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@blaze-cardano/sdk": "^0.2.44",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/orbitron": "^5.2.8",
+    "@meshsdk/core": "^1.9.0-beta.87",
+    "@meshsdk/react": "^1.9.0-beta.87",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
+    "@utxorpc/blaze-provider": "^0.3.7",
     "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "lucid-cardano": "^0.10.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-scripts": "5.0.1",
     "react-tsparticles": "^2.12.2",
     "tsparticles": "^3.9.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "eslintConfig": {
     "extends": [
@@ -43,5 +47,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^8.57.1",
+    "vite": "^7.2.4",
+    "vite-plugin-node-polyfills": "^0.24.0"
   }
 }

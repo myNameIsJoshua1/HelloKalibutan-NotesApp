@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import NotesPage from "./pages/NotesPage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import NotesPage from "./pages/NotesPage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "./theme/theme";
-import ParticleBackground from "./components/NoteCard";
+import ParticleBackground from "./components/NoteCard.jsx";
 
 function App() {
   const [user, setUser] = useState(() => {

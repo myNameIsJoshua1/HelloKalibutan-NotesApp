@@ -1,3 +1,4 @@
+import { Blockfrost, WebWallet, Blaze, Core} from "@blaze-cardano/sdk";
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -41,6 +42,13 @@ function NotesPage({
   const [wallets, setWallets] = useState([]);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletAddress, setWalletAddress] = useState(''); 
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState(0n);
+
+  const [provider] = useState(() => new Blockfrost({
+    network: 'cardano-preview',
+    projectId: 'preview2YCkQ5oHRIwnyfVyzx29YBBsmMEb33B6',
+  }))
 
   useEffect(() => {
     if (window.cardano) {
@@ -66,6 +74,45 @@ function NotesPage({
         setWalletAddress(address);
       } catch (error) {
         console.error("Error connecting to wallet:", error);
+      }
+    }
+  };
+
+  const handleRecipientChange = (e) => {
+    setRecipient(e.target.value);
+  };
+
+  const handleAmountChange = (e) => {
+    setAmount(BigInt(e.target.value));
+  };
+
+  const handleSubmitTransaction = async () => {
+    if (walletApi) {
+      try {
+        const wallet = new WebWallet(walletApi);
+        const blaze = await Blaze.from(provider, wallet);
+        console.log("Blaze instance created:", blaze);
+
+        const bech32Address = Core.Address.fromBytes(Buffer.from(walletAddress, 'hex')).toBech32()
+        console.log("Recipient Bech32 address:", bech32Address);
+
+        const tx = await blaze
+          .newTransaction()
+          .payLovelace(
+            Core.Address.fromBech32(recipient),
+            amount
+          )
+          .complete();
+        
+        console.log("Transaction built:", tx.toCbor());
+
+        const signedTx = await blaze.signTransaction(tx);
+        console.log("Transaction signed:", signedTx.toCbor());
+
+        const txHash = await blaze.provider.postTransactionToChain(signedTx);
+        console.log("Transaction submitted. Hash:", txHash);
+      } catch (error) {
+        console.error("Error submitting transaction:", error);
       }
     }
   };
@@ -122,7 +169,18 @@ function NotesPage({
             </option>
           ))}
         </select>
-        <button onClick={handleConnectWallet}>Connect Wallet</button>
+        {walletApi ? 
+          (<div>Wallet Connected</div>) :
+        (<button onClick={handleConnectWallet}>Connect Wallet</button>)}
+        
+        <div>
+          <p>Connected Address: {walletAddress || "Not connected"}</p>
+          <label>Recipient Address:</label>
+          <input type="text" placeholder="Enter Recipient Address" value={recipient} onChange={handleRecipientChange}/>
+          <label>Amount:</label>
+          <input type="number" placeholder="Enter Amount" value={amount} onChange={handleAmountChange}/>
+          <button onClick={handleSubmitTransaction}>Send ADA</button>
+        </div>
       </Box>
 
       {/* Top Bar */}
