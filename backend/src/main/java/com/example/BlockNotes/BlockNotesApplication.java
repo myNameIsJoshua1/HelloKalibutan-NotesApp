@@ -12,5 +12,4 @@ public class BlockNotesApplication {
 		SpringApplication.run(BlockNotesApplication.class, args);
 		System.out.println("Backend running at port 8080!");
 	}
-
 }
