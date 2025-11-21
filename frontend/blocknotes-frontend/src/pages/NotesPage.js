@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -37,6 +37,38 @@ function NotesPage({
 }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [viewNote, setViewNote] = useState(null);
+  const [walletApi, setWalletApi] = useState(null);
+  const [wallets, setWallets] = useState([]);
+  const [selectedWallet, setSelectedWallet] = useState('');
+  const [walletAddress, setWalletAddress] = useState(''); 
+
+  useEffect(() => {
+    if (window.cardano) {
+      setWallets(Object.keys(window.cardano));
+    }
+  }, []);
+
+  const handleWalletChange = (e) => {
+    const walletName = e.target.value;
+    setSelectedWallet(walletName);
+  };
+
+  const handleConnectWallet = async () => {
+    console.log("Connecting to wallet:", selectedWallet);
+    if (selectedWallet && window.cardano[selectedWallet]) {
+      try {
+        const api = await window.cardano[selectedWallet].enable();
+        setWalletApi(api);
+        console.log("Connected to wallet API:", api);
+
+        const address = await api.getChangeAddress();
+        console.log("Wallet address (hex):", address);
+        setWalletAddress(address);
+      } catch (error) {
+        console.error("Error connecting to wallet:", error);
+      }
+    }
+  };
 
   // --- Dialog Handlers ---
   const openAdd = () => {
@@ -46,6 +78,7 @@ function NotesPage({
     setNewNote("");
     setOpenEditDialog(true);
   };
+
   const openEdit = (note, e) => {
     if (e) e.stopPropagation();
     setIsEditing(true);
@@ -54,11 +87,13 @@ function NotesPage({
     setNewNote(note.content);
     setOpenEditDialog(true);
   };
+
   const closeEdit = () => {
     setOpenEditDialog(false);
     setIsEditing(false);
     setEditingNote(null);
   };
+
   const saveNote = async () => {
     await onAdd();
     closeEdit();
@@ -77,6 +112,19 @@ function NotesPage({
         px: { xs: 2, sm: 4, md: 8, lg: 12 },
       }}
     >
+      {/* Wallet Connection Section */}
+      <Box sx={{ mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
+        <select value={selectedWallet} onChange={handleWalletChange}>
+          <option value="">Select Wallet</option>
+          {wallets.length > 0 && wallets.map((wallet) => (
+            <option key={wallet} value={wallet}>
+              {wallet}
+            </option>
+          ))}
+        </select>
+        <button onClick={handleConnectWallet}>Connect Wallet</button>
+      </Box>
+
       {/* Top Bar */}
       <Box
         sx={{
@@ -131,11 +179,7 @@ function NotesPage({
       </Box>
 
       {/* Notes Grid */}
-      <Grid
-        container
-        spacing={4}
-        justifyContent="flex-start" // <--- notes aligned to left
-      >
+      <Grid container spacing={4} justifyContent="flex-start">
         {notes.map((note) => (
           <Grid key={note.id} item>
             <Paper
@@ -178,7 +222,9 @@ function NotesPage({
                 {note.content}
               </Typography>
 
-              <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end", gap: 1 }}>
+              <Box
+                sx={{ mt: 1, display: "flex", justifyContent: "flex-end", gap: 1 }}
+              >
                 <Button
                   size="small"
                   variant="text"
