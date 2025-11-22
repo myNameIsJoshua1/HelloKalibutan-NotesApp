@@ -47,7 +47,7 @@ function NotesPage({
 
   const [provider] = useState(() => new Blockfrost({
     network: 'cardano-preview',
-    projectId: 'preview2YCkQ5oHRIwnyfVyzx29YBBsmMEb33B6',
+    projectId: import.meta.env.VITE_BLACKFROST_PROJECT_ID,
   }))
 
   useEffect(() => {
@@ -86,6 +86,30 @@ function NotesPage({
     setAmount(BigInt(e.target.value));
   };
 
+  
+  const createTxNote = async ({ status, txHash, from, to, lovelaceAmount, adaAmount, timestamp, extra }) => {
+    const title = status || (txHash ? "Success" : "Failed");
+
+    const lines = [];
+    lines.push(`Status: ${title}`);
+    if (txHash) lines.push(`TxHash: ${txHash}`);
+    if (from) lines.push(`From: ${from}`);
+    if (to) lines.push(`To: ${to}`);
+    if (lovelaceAmount !== undefined) lines.push(`Amount (lovelace): ${lovelaceAmount}`);
+    if (adaAmount !== undefined) lines.push(`Amount (ADA): ${adaAmount}`);
+    if (timestamp) lines.push(`Timestamp: ${timestamp}`);
+    if (extra) lines.push(`Extra: ${extra}`);
+
+    const content = lines.join("\n");
+
+    try {
+      await onAdd({ title, content });
+    } catch (err) {
+      console.error("Error creating transaction note:", err);
+    }
+  };
+
+
   const handleSubmitTransaction = async () => {
     if (walletApi) {
       try {
@@ -93,8 +117,9 @@ function NotesPage({
         const blaze = await Blaze.from(provider, wallet);
         console.log("Blaze instance created:", blaze);
 
-        const bech32Address = Core.Address.fromBytes(Buffer.from(walletAddress, 'hex')).toBech32()
-        console.log("Recipient Bech32 address:", bech32Address);
+        const fromBech32 = walletAddress
+          ? Core.Address.fromBytes(Buffer.from(walletAddress, 'hex')).toBech32()
+          : null;
 
         const tx = await blaze
           .newTransaction()
@@ -111,8 +136,39 @@ function NotesPage({
 
         const txHash = await blaze.provider.postTransactionToChain(signedTx);
         console.log("Transaction submitted. Hash:", txHash);
+
+        const iso = new Date().toISOString();
+        const ada = Number(amount) / 1000000;
+
+        await createTxNote({
+          status: "Success",
+          txHash,
+          from: fromBech32,
+          to: recipient,
+          lovelaceAmount: amount.toString(),
+          adaAmount: ada,
+          timestamp: iso,
+        });
       } catch (error) {
         console.error("Error submitting transaction:", error);
+        const iso = new Date().toISOString();
+        let fromBech32 = null;
+        try {
+          if (walletAddress) fromBech32 = Core.Address.fromBytes(Buffer.from(walletAddress, 'hex')).toBech32();
+        } catch (e) {
+          // ignore conversion error
+        }
+
+        await createTxNote({
+          status: "Failed",
+          txHash: null,
+          from: fromBech32,
+          to: recipient || null,
+          lovelaceAmount: amount ? amount.toString() : undefined,
+          adaAmount: amount ? Number(amount) / 1000000 : undefined,
+          timestamp: iso,
+          extra: (error && error.message) ? error.message : String(error),
+        });
       }
     }
   };

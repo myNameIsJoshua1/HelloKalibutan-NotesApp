@@ -39,22 +39,30 @@ function App() {
     }
   };
 
-  const addOrUpdateNote = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    if (!newNote.trim() || !newTitle.trim()) return;
+  // Updated: accept an optional note object { title, content }
+  const addOrUpdateNote = async (eOrNote) => {
+    // If caller passed an event (from form submit), prevent default
+    if (eOrNote && eOrNote.preventDefault) eOrNote.preventDefault();
+
+    // If a note object was provided, use it; otherwise use state values
+    const providedNote = eOrNote && !eOrNote.preventDefault ? eOrNote : null;
+    const titleToUse = providedNote && providedNote.title !== undefined ? providedNote.title : newTitle;
+    const contentToUse = providedNote && providedNote.content !== undefined ? providedNote.content : newNote;
+
+    if (!contentToUse || !titleToUse) return;
 
     try {
       if (isEditing && editingNote) {
         const res = await axios.put(`http://localhost:8080/api/notes/${editingNote.id}`, {
           ...editingNote,
-          title: newTitle,
-          content: newNote,
+          title: titleToUse,
+          content: contentToUse,
         });
         setNotes(notes.map((n) => (n.id === editingNote.id ? res.data : n)));
       } else {
         const res = await axios.post(`http://localhost:8080/api/notes/user/${user.id}`, {
-          title: newTitle,
-          content: newNote,
+          title: titleToUse,
+          content: contentToUse,
         });
         setNotes([...notes, res.data]);
       }
