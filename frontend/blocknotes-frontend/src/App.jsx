@@ -167,6 +167,7 @@ function App() {
             setSearch={setSearch}
             sort={sort}
             setSort={setSort}
+            user={user}
           />
         </div>
       )}
