@@ -58,7 +58,7 @@ function NotesPage({
 
   const [provider] = useState(() => new Blockfrost({
     network: 'cardano-preview',
-    projectId: 'previewQMLEHlZRadshjVzchb7tPWWRZpvYpIyz',
+    projectId: 'previewCgsMcB0ZF8DRh1QBLGz4qBl4PDgUlyxL',
   }))
   const [lucid, setLucid] = useState(null);
 
