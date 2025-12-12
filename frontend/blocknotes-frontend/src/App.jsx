@@ -39,12 +39,12 @@ function App() {
     }
   };
 
-  // Updated: accept an optional note object { title, content }
+  
   const addOrUpdateNote = async (eOrNote) => {
-    // If caller passed an event (from form submit), prevent default
+    
     if (eOrNote && eOrNote.preventDefault) eOrNote.preventDefault();
 
-    // If a note object was provided, use it; otherwise use state values
+    
     const providedNote = eOrNote && !eOrNote.preventDefault ? eOrNote : null;
     const titleToUse = providedNote && providedNote.title !== undefined ? providedNote.title : newTitle;
     const contentToUse = providedNote && providedNote.content !== undefined ? providedNote.content : newNote;
@@ -103,7 +103,7 @@ function App() {
     }
   };
 
-  // Updated registration function
+  
   const handleRegister = async ({ username, password }) => {
     if (!username.trim() || !password.trim()) {
       alert("Please fill in both username and password.");
@@ -113,7 +113,7 @@ function App() {
     try {
       await axios.post("http://localhost:8080/api/users", { username, password });
       alert("Registration successful! Please log in.");
-      setPage("login"); // redirect to login page
+      setPage("login"); 
     } catch {
       alert("Registration failed. Please try again.");
     }
