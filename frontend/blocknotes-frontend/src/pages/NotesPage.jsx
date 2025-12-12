@@ -1,4 +1,4 @@
-import { Blockfrost, WebWallet, Blaze, Core} from "@blaze-cardano/sdk";
+import { Lucid, Blockfrost } from "lucid-cardano";
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -60,6 +60,21 @@ function NotesPage({
     network: 'cardano-preview',
     projectId: 'previewQMLEHlZRadshjVzchb7tPWWRZpvYpIyz',
   }))
+  const [lucid, setLucid] = useState(null);
+
+  useEffect(() => {
+    const initLucid = async () => {
+      const lucidInstance = await Lucid.new(
+        new Blockfrost(
+          'https://cardano-preview.blockfrost.io/api/v0',
+          import.meta.env.VITE_BLACKFROST_PROJECT_ID
+        ),
+        'Preview'
+      );
+      setLucid(lucidInstance);
+    };
+    initLucid();
+  }, []);
 
   useEffect(() => {
     if (window.cardano) {
@@ -74,14 +89,15 @@ function NotesPage({
 
   const handleConnectWallet = async () => {
     console.log("Connecting to wallet:", selectedWallet);
-    if (selectedWallet && window.cardano[selectedWallet]) {
+    if (selectedWallet && window.cardano[selectedWallet] && lucid) {
       try {
         const api = await window.cardano[selectedWallet].enable();
         setWalletApi(api);
         console.log("Connected to wallet API:", api);
 
-        const address = await api.getChangeAddress();
-        console.log("Wallet address (hex):", address);
+        lucid.selectWallet(api);
+        const address = await lucid.wallet.address();
+        console.log("Wallet address (bech32):", address);
         setWalletAddress(address);
       } catch (error) {
         console.error("Error connecting to wallet:", error);
@@ -97,33 +113,72 @@ function NotesPage({
     setAmount(BigInt(e.target.value));
   };
 
+  
+  const createTxNote = async ({ status, txHash, from, to, lovelaceAmount, adaAmount, timestamp, extra }) => {
+    const title = status || (txHash ? "Success" : "Failed");
+
+    const lines = [];
+    lines.push(`Status: ${title}`);
+    if (txHash) lines.push(`TxHash: ${txHash}`);
+    if (from) lines.push(`From: ${from}`);
+    if (to) lines.push(`To: ${to}`);
+    if (lovelaceAmount !== undefined) lines.push(`Amount (lovelace): ${lovelaceAmount}`);
+    if (adaAmount !== undefined) lines.push(`Amount (ADA): ${adaAmount}`);
+    if (timestamp) lines.push(`Timestamp: ${timestamp}`);
+    if (extra) lines.push(`Extra: ${extra}`);
+
+    const content = lines.join("\n");
+
+    try {
+      await onAdd({ title, content });
+    } catch (err) {
+      console.error("Error creating transaction note:", err);
+    }
+  };
+
+
   const handleSubmitTransaction = async () => {
-    if (walletApi) {
+    if (walletApi && lucid) {
       try {
-        const wallet = new WebWallet(walletApi);
-        const blaze = await Blaze.from(provider, wallet);
-        console.log("Blaze instance created:", blaze);
-
-        const bech32Address = Core.Address.fromBytes(Buffer.from(walletAddress, 'hex')).toBech32()
-        console.log("Recipient Bech32 address:", bech32Address);
-
-        const tx = await blaze
-          .newTransaction()
-          .payLovelace(
-            Core.Address.fromBech32(recipient),
-            amount
-          )
+        const tx = await lucid
+          .newTx()
+          .payToAddress(recipient, { lovelace: amount })
           .complete();
         
-        console.log("Transaction built:", tx.toCbor());
+        console.log("Transaction built:", tx.toString());
 
-        const signedTx = await blaze.signTransaction(tx);
-        console.log("Transaction signed:", signedTx.toCbor());
+        const signedTx = await tx.sign().complete();
+        console.log("Transaction signed:", signedTx.toString());
 
-        const txHash = await blaze.provider.postTransactionToChain(signedTx);
+        const txHash = await signedTx.submit();
         console.log("Transaction submitted. Hash:", txHash);
+
+        const iso = new Date().toISOString();
+        const ada = Number(amount) / 1000000;
+
+        await createTxNote({
+          status: "Success",
+          txHash,
+          from: walletAddress,
+          to: recipient,
+          lovelaceAmount: amount.toString(),
+          adaAmount: ada,
+          timestamp: iso,
+        });
       } catch (error) {
         console.error("Error submitting transaction:", error);
+        const iso = new Date().toISOString();
+
+        await createTxNote({
+          status: "Failed",
+          txHash: null,
+          from: walletAddress || null,
+          to: recipient || null,
+          lovelaceAmount: amount ? amount.toString() : undefined,
+          adaAmount: amount ? Number(amount) / 1000000 : undefined,
+          timestamp: iso,
+          extra: (error && error.message) ? error.message : String(error),
+        });
       }
     }
   };

@@ -39,22 +39,30 @@ function App() {
     }
   };
 
-  const addOrUpdateNote = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    if (!newNote.trim() || !newTitle.trim()) return;
+  
+  const addOrUpdateNote = async (eOrNote) => {
+    
+    if (eOrNote && eOrNote.preventDefault) eOrNote.preventDefault();
+
+    
+    const providedNote = eOrNote && !eOrNote.preventDefault ? eOrNote : null;
+    const titleToUse = providedNote && providedNote.title !== undefined ? providedNote.title : newTitle;
+    const contentToUse = providedNote && providedNote.content !== undefined ? providedNote.content : newNote;
+
+    if (!contentToUse || !titleToUse) return;
 
     try {
       if (isEditing && editingNote) {
         const res = await axios.put(`http://localhost:8080/api/notes/${editingNote.id}`, {
           ...editingNote,
-          title: newTitle,
-          content: newNote,
+          title: titleToUse,
+          content: contentToUse,
         });
         setNotes(notes.map((n) => (n.id === editingNote.id ? res.data : n)));
       } else {
         const res = await axios.post(`http://localhost:8080/api/notes/user/${user.id}`, {
-          title: newTitle,
-          content: newNote,
+          title: titleToUse,
+          content: contentToUse,
         });
         setNotes([...notes, res.data]);
       }
@@ -95,7 +103,7 @@ function App() {
     }
   };
 
-  // Updated registration function
+  
   const handleRegister = async ({ username, password }) => {
     if (!username.trim() || !password.trim()) {
       alert("Please fill in both username and password.");
@@ -105,7 +113,7 @@ function App() {
     try {
       await axios.post("http://localhost:8080/api/users", { username, password });
       alert("Registration successful! Please log in.");
-      setPage("login"); // redirect to login page
+      setPage("login"); 
     } catch {
       alert("Registration failed. Please try again.");
     }
