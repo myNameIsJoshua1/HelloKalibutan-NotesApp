@@ -15,8 +15,18 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  FormControl,
+  InputLabel,
+  Chip,
+  Divider,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import SendIcon from "@mui/icons-material/Send"; // Kept import if needed
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+// Removed unused imports to clean up
+// import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
+// import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 
 function NotesPage({
   notes,
@@ -35,6 +45,7 @@ function NotesPage({
   setSearch,
   sort,
   setSort,
+  user = { username: "User" }, // Default user object
 }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [viewNote, setViewNote] = useState(null);
@@ -150,6 +161,14 @@ function NotesPage({
   const openView = (note) => setViewNote(note);
   const closeView = () => setViewNote(null);
 
+  // Random nebula colors matching the particle background
+  const nebulaColors = [
+    "rgba(142,45,226,0.25)",
+    "rgba(255,0,150,0.2)",
+    "rgba(0,200,255,0.15)",
+    "rgba(255,150,50,0.1)",
+  ];
+
   return (
     <Container
       maxWidth={false}
@@ -159,81 +178,329 @@ function NotesPage({
         px: { xs: 2, sm: 4, md: 8, lg: 12 },
       }}
     >
-      {/* Wallet Connection Section */}
-      <Box sx={{ mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
-        <select value={selectedWallet} onChange={handleWalletChange}>
-          <option value="">Select Wallet</option>
-          {wallets.length > 0 && wallets.map((wallet) => (
-            <option key={wallet} value={wallet}>
-              {wallet}
-            </option>
-          ))}
-        </select>
-        {walletApi ? 
-          (<div>Wallet Connected</div>) :
-        (<button onClick={handleConnectWallet}>Connect Wallet</button>)}
-        
-        <div>
-          <p>Connected Address: {walletAddress || "Not connected"}</p>
-          <label>Recipient Address:</label>
-          <input type="text" placeholder="Enter Recipient Address" value={recipient} onChange={handleRecipientChange}/>
-          <label>Amount:</label>
-          <input type="number" placeholder="Enter Amount" value={amount} onChange={handleAmountChange}/>
-          <button onClick={handleSubmitTransaction}>Send ADA</button>
-        </div>
-      </Box>
-
-      {/* Top Bar */}
-      <Box
+      {/* 🌌 COMPACT COSMIC WALLET CARD 🌌 */}
+      <Paper
+        elevation={0}
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 4,
-          flexWrap: "wrap",
-          gap: 2,
+          mb: 3,
+          p: 0,
+          background: "transparent",
+          position: "relative",
+          overflow: "visible",
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: 600 }}>
+        {/* Outer Glow Container - MARGINS UNCHANGED */}
+        <Box
+          sx={{
+            position: "relative",
+            background: `
+              radial-gradient(circle at 20% 50%, ${nebulaColors[0]}, transparent 70%),
+              radial-gradient(circle at 80% 50%, ${nebulaColors[1]}, transparent 70%),
+              radial-gradient(circle at 50% 100%, ${nebulaColors[2]}, transparent 60%)
+            `,
+            borderRadius: "10px",
+            padding: "1px", // Minimal border size maintained
+            animation: "pulse 3s ease-in-out infinite",
+            "@keyframes pulse": {
+              "0%, 100%": { boxShadow: "0 0 20px rgba(142,45,226,0.2)" },
+              "50%": { boxShadow: "0 0 28px rgba(142,45,226,0.3)" },
+            },
+          }}
+        >
+          {/* Inner Card Background */}
+          <Box
+            sx={{
+              background: "linear-gradient(135deg, rgba(20,20,40,0.98) 0%, rgba(30,15,50,0.98) 100%)",
+              backdropFilter: "blur(20px)",
+              borderRadius: "9px",
+              p: 1.5, // Reduced padding for compactness
+              border: "1px solid rgba(142,45,226,0.3)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+             {/* Header Title - Made Smaller & Integrated */}
+
+            {/* Welcome Message */}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 1, ml: 0.5, justifyContent: "flex-start" }}>
+                <Typography
+                    variant="h6"
+                    sx={{
+                        fontWeight: 800,
+                        background: "linear-gradient(90deg, #8e2de2, #ff9800, #00d4ff)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        textTransform: "uppercase",
+                        letterSpacing: 0.8,
+                        fontSize: "0.9rem",
+                        fontFamily: "'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif",
+                        textShadow: "0 0 10px rgba(142,45,226,0.5)",
+                    }}
+                >
+                    Welcome, {user.username}
+                </Typography>
+            </Box>
+
+            {/* Unified Layout: Wallet | Transaction | Notes Controls */}
+            <Box sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 2,
+            }}>
+
+                {/* === LEFT: Wallet Side === */}
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                    minWidth: "200px",
+                    background: "rgba(142,45,226,0.08)",
+                    border: "1px solid rgba(142,45,226,0.3)",
+                    borderRadius: "6px",
+                    p: 1,
+                }}>
+                    <FormControl size="small" variant="standard" sx={{ minWidth: "160px" }}>
+                        <InputLabel sx={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem" }}>
+                            Select Wallet
+                        </InputLabel>
+                        <Select
+                        value={selectedWallet}
+                        onChange={handleWalletChange}
+                        sx={{
+                            color: "#fff",
+                            fontSize: "0.8rem",
+                            "&:before": { borderColor: "rgba(142,45,226,0.3)" },
+                            "&:after": { borderColor: "#8e2de2" },
+                        }}
+                        >
+                        {wallets.map((wallet) => (
+                            <MenuItem key={wallet} value={wallet} dense>
+                            {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                            </MenuItem>
+                        ))}
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: "28px" }}>
+                        {!walletApi ? (
+                            <Button
+                            variant="contained"
+                            onClick={handleConnectWallet}
+                            disabled={!selectedWallet}
+                            sx={{
+                                height: "26px",
+                                minWidth: "38px",
+                                background: "linear-gradient(90deg, #8e2de2, #4a00e0)",
+                                "&:hover": { background: "linear-gradient(90deg, #4a00e0, #8e2de2)" },
+                            }}
+                            >
+                            <AccountBalanceWalletIcon fontSize="small" />
+                            </Button>
+                        ) : (
+                            <CheckCircleIcon sx={{ color: "#4caf50", fontSize: 18 }} />
+                        )}
+
+                        {/* Inline Address Display */}
+                        {walletAddress && (
+                            <Typography sx={{
+                                fontSize: "0.5rem",
+                                fontFamily: "monospace",
+                                color: "#00d4ff",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "110px"
+                            }}>
+                                {walletAddress.slice(0, 6)}...
+                            </Typography>
+                        )}
+                    </Box>
+                </Box>
+
+                {/* === CENTER: Transaction Controls === */}
+                <Box sx={{
+                    display: "flex",
+                    gap: 1,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    flex: 1,
+                    maxWidth: "500px",
+                }}>
+                    <TextField
+                        size="small"
+                        label="Recipient Address"
+                        placeholder="addr1..."
+                        value={recipient}
+                        onChange={handleRecipientChange}
+                        disabled={!walletApi}
+                        variant="outlined"
+                        sx={{
+                            minWidth: "200px",
+                            "& .MuiOutlinedInput-root": {
+                                height: "35px",
+                                color: "white",
+                                fontSize: "0.75rem",
+                                "& fieldset": { borderColor: "transparent" },
+                                "&:hover fieldset": { borderColor: "transparent" },
+                                "&.Mui-focused fieldset": { borderColor: "transparent" },
+                            },
+                            "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", top: "-4px" },
+                            "& .MuiInputLabel-shrink": { top: "0px" },
+                        }}
+                    />
+
+                    <TextField
+                        size="small"
+                        label="Lovelace"
+                        placeholder="1000000"
+                        type="number"
+                        value={amount}
+                        onChange={handleAmountChange}
+                        disabled={!walletApi}
+                        variant="outlined"
+                        sx={{
+                            minWidth: "120px",
+                            "& .MuiOutlinedInput-root": {
+                                height: "35px",
+                                color: "white",
+                                fontSize: "0.75rem",
+                                "& fieldset": { borderColor: "rgba(255,152,0,0.3)" },
+                                "&:hover fieldset": { borderColor: "rgba(255,152,0,0.6)" },
+                                "&.Mui-focused fieldset": { borderColor: "#ff9800" },
+                            },
+                            "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.5)", fontSize: "0.75rem", top: "-4px" },
+                            "& .MuiInputLabel-shrink": { top: "0px" },
+                        }}
+                    />
+
+                    <Button
+                        variant="contained"
+                        onClick={handleSubmitTransaction}
+                        disabled={!walletApi || !recipient || !amount}
+                        sx={{
+                            height: "35px",
+                            background: "linear-gradient(90deg, #ff9800, #ff5722)",
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                            letterSpacing: 1,
+                            px: 2,
+                            "&:hover": {
+                                background: "linear-gradient(90deg, #ff5722, #ff9800)",
+                                boxShadow: "0 0 15px rgba(255,152,0,0.5)",
+                            },
+                        }}
+                    >
+                        SEND
+                    </Button>
+                </Box>
+
+                {/* === RIGHT: Notes Controls === */}
+                <Box sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.5,
+                    flexWrap: "wrap"
+                }}>
+                    <Select
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                        size="small"
+                        sx={{
+                            minWidth: 100,
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            color: 'white',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'rgba(142,45,226,0.3)',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#8e2de2',
+                            },
+                        }}
+                    >
+                        <MenuItem value="date">Date</MenuItem>
+                        <MenuItem value="title">Title</MenuItem>
+                    </Select>
+
+                    <TextField
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        size="small"
+                        placeholder="Search notes..."
+                        sx={{
+                            minWidth: 140,
+                            '& .MuiOutlinedInput-root': {
+                                backgroundColor: 'rgba(255,255,255,0.1)',
+                                color: 'white',
+                                '& fieldset': {
+                                    borderColor: 'rgba(142,45,226,0.3)',
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: '#8e2de2',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#8e2de2',
+                                },
+                            },
+                            '& .MuiInputBase-input::placeholder': {
+                                color: 'rgba(255,255,255,0.5)',
+                            },
+                        }}
+                    />
+
+                    <IconButton
+                        onClick={openAdd}
+                        sx={{
+                            background: "linear-gradient(45deg, #8e2de2, #4a00e0)",
+                            color: "#fff",
+                            width: 36,
+                            height: 36,
+                            "&:hover": {
+                                background: "linear-gradient(45deg, #4a00e0, #8e2de2)",
+                                boxShadow: "0 0 12px rgba(142,45,226,0.6)",
+                            },
+                        }}
+                    >
+                        <AddIcon fontSize="small" />
+                    </IconButton>
+
+                    <Button
+                        variant="outlined"
+                        onClick={onLogout}
+                        sx={{
+                            borderColor: "#ff9800",
+                            color: "#ff9800",
+                            height: 36,
+                            fontSize: "0.75rem",
+                            "&:hover": {
+                                borderColor: "#ff9800",
+                                background: "rgba(255,152,0,0.1)",
+                                boxShadow: "0 0 12px rgba(255,152,0,0.4)",
+                            },
+                        }}
+                    >
+                        Logout
+                    </Button>
+                </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Paper>
+
+      {/* NOTES SECTION */}
+      <Box sx={{ mb: 4 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            textShadow: "0 0 25px rgba(142,45,226,0.8)",
+            mb: 3,
+          }}
+        >
           Notes
         </Typography>
-
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            size="small"
-            sx={{ minWidth: 100 }}
-          >
-            <MenuItem value="date">Date</MenuItem>
-            <MenuItem value="title">Title</MenuItem>
-          </Select>
-
-          <TextField
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            size="small"
-            placeholder="Search"
-            sx={{ minWidth: 180 }}
-          />
-
-          <IconButton
-            onClick={openAdd}
-            color="primary"
-            sx={{ width: 48, height: 48 }}
-          >
-            <AddIcon fontSize="large" />
-          </IconButton>
-
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={onLogout}
-            sx={{ ml: 1 }}
-          >
-            Logout
-          </Button>
-        </Box>
       </Box>
 
       {/* Notes Grid */}
@@ -310,7 +577,7 @@ function NotesPage({
         ))}
       </Grid>
 
-      {/* Read-only Overview Dialog */}
+      {/* Dialogs */}
       <Dialog open={!!viewNote} onClose={closeView} fullWidth maxWidth="md">
         <DialogTitle>{viewNote?.title || "Untitled"}</DialogTitle>
         <DialogContent dividers>
@@ -323,7 +590,6 @@ function NotesPage({
         </DialogActions>
       </Dialog>
 
-      {/* Add/Edit Dialog */}
       <Dialog open={openEditDialog} onClose={closeEdit} fullWidth maxWidth="sm">
         <DialogTitle>{isEditing ? "Edit Note" : "New Note"}</DialogTitle>
         <DialogContent>
